@@ -71,6 +71,9 @@
     return (j.content || []).filter(c => c.type === "text").map(c => c.text).join("\n");
   }
 
+  const airy = s => String(s).replace(/breathy/gi, "airy");   // breathy 금지 — LLM이 돌려준 문구에도 적용
+  const airyObj = o => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, airy(v)]));
+
   function parseJSON(text) {
     const clean = text.replace(/```json|```/g, "").trim();
     const s = clean.indexOf("{"), e = clean.lastIndexOf("}");
@@ -86,16 +89,16 @@
     const raw = p.adapter === "A" ? await callA(p, key, m, sys, usr) : await callB(p, key, m, sys, usr);
     const out = parseJSON(raw);
     return {
-      styleAdditions: Array.isArray(out.styleAdditions) ? out.styleAdditions.slice(0, 3).map(String) : [],
-      sectionDirecting: out.sectionDirecting && typeof out.sectionDirecting === "object" ? out.sectionDirecting : {},
-      layerHints: out.layerHints && typeof out.layerHints === "object" ? out.layerHints : {},
+      styleAdditions: Array.isArray(out.styleAdditions) ? out.styleAdditions.slice(0, 3).map(airy) : [],
+      sectionDirecting: out.sectionDirecting && typeof out.sectionDirecting === "object" ? airyObj(out.sectionDirecting) : {},
+      layerHints: out.layerHints && typeof out.layerHints === "object" ? airyObj(out.layerHints) : {},
       note: out.note ? String(out.note) : ""
     };
   }
 
   /* ---------- 음원 분석 (Gemini 네이티브 엔드포인트 — 오디오 입력, 브라우저 직접 호출 가능) ----------
      선택지 id만 고르게 해서 폼을 그대로 조작한다. 가사·가수명·곡명은 받지 않는다. */
-  const GEMINI = { name: "Gemini", defaultModel: "gemini-flash-latest", maxBytes: 14 * 1024 * 1024,
+  const GEMINI = { name: "Gemini", defaultModel: "gemini-3.8-flash", maxBytes: 14 * 1024 * 1024,
     url: m => "https://generativelanguage.googleapis.com/v1beta/models/" + encodeURIComponent(m) + ":generateContent" };
 
   function analyzePrompt(data, ins) {
@@ -175,7 +178,7 @@
       },
       lang: pick(data.languages, o.lang, ""),
       mainInst, sections,
-      extraStyle: (Array.isArray(o.extraStyle) ? o.extraStyle : []).slice(0, 3).map(String)
+      extraStyle: (Array.isArray(o.extraStyle) ? o.extraStyle : []).slice(0, 3).map(airy)
     };
   }
 

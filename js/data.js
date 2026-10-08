@@ -168,7 +168,7 @@ window.SUNO_DATA = {
     ],
 
     /* 잔잔형(H1)일 때 함께 넣는 저에너지 마커 */
-    quietMarkers: ["breathy","conversational delivery"],
+    quietMarkers: ["airy","conversational delivery"],
 
     /* H1일 때 style에서 빼야 하는 에너지 단어 — 있으면 경고 */
     energyWords: ["powerful","anthemic","explosive","high energy","epic","driving","aggressive"],
@@ -235,7 +235,7 @@ window.SUNO_DATA = {
       { id:"whisper",  ko:"섬세하고 속삭이는", en:"whispery tone" },
       { id:"deep",     ko:"깊고 성숙한",       en:"deep mature tone" },
       { id:"natural",  ko:"담백하고 자연스러운", en:"natural understated tone" },
-      { id:"breathy",  ko:"숨결이 느껴지는",   en:"breathy delivery" }
+      { id:"breathy",  ko:"숨결이 느껴지는",   en:"airy delivery" }
     ],
     rangeChips: ["soprano","alto","tenor","baritone","falsetto-leaning","comfortable low-mid register"]
   },
@@ -603,7 +603,7 @@ window.SUNO_DATA = {
       ["Organic production","실연 느낌"],["Minimal processing","최소 가공"]
     ],
     vocal: [
-      ["Breathy vocal","숨결 보컬"],["Intimate vocal","귀 가까운 보컬"],["Soulful vocal","소울풀"],
+      ["Airy vocal","숨결 보컬"],["Intimate vocal","귀 가까운 보컬"],["Soulful vocal","소울풀"],
       ["Powerful vocal","파워풀"],["Soft vocal","부드러운"],["Whisper vocal","속삭임"],
       ["Layered vocals","레이어드 보컬"],["Background harmonies","백 하모니"],["Falsetto vocal","가성"],
       ["Emotional vocal","감정적"],["Clean vocal tone","깨끗한 톤"],["Airy vocal","공기감"],
