@@ -507,6 +507,30 @@ select option{background:#151515;color:var(--fg)}
   .bnav{display:none}
   .dock.kb .ptabs{display:none}
   .pg-off{display:none!important}
+  .pt{color:var(--fg-2)}
+
+  /* 위쪽 영역을 줄여 탭 내용이 첫 화면에 들어오게 */
+  .top{padding:10px 0;margin-bottom:var(--s3)}
+  .sub{display:none}
+  .control{padding:12px;margin-bottom:var(--s3)}
+  .toolbar{flex-wrap:nowrap;gap:var(--s2);margin-bottom:10px}
+  .stamp{flex:1}
+  .stamp .tag{display:none}
+  .stamp .name{font-size:15px}
+  .toolbar .actions{flex-wrap:nowrap;gap:6px;flex:none}
+  .toolbar .btn{padding:0 10px;font-size:13px;gap:5px}
+  .seg{grid-template-columns:1fr 1fr}
+  .seg-item{align-items:center;min-height:44px;padding:8px 12px}
+  .seg-item small{display:none}
+  .seg-item svg{margin-top:0}
+
+  /* 장르 칩은 한 줄로 두고 좌우로 민다 */
+  .chips.scroll{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-right:calc(var(--s4) * -1);padding-right:var(--s4)}
+  .chips.scroll::-webkit-scrollbar{display:none}
+  .chips.scroll .chip{flex:none}
+
+  .proj-row{grid-template-columns:1fr 1fr}
+  .proj-row>div:first-child{grid-column:1 / -1}
 }
 
 /* ---------- 푸터 ---------- */

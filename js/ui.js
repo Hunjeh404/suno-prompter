@@ -80,7 +80,7 @@
         let ctl = "";
         if (f.type === "select") ctl = `<select id="${id}">${(f.optsFn ? f.optsFn() : f.opts).map(o => `<option value="${esc(o.v)}"${o.v === state[f.k] ? " selected" : ""}>${esc(o.t)}</option>`).join("")}</select>`;
         else if (f.type === "text") ctl = `<input type="text" id="${id}" placeholder="${esc(f.ph || "")}" value="${esc(state[f.k] || "")}">` + (f.chips ? `<div class="chips">${f.chips.map(c => `<button class="chip" type="button" data-chip="${esc(c)}" data-for="${id}">${esc(c)}</button>`).join("")}</div>` : "");
-        else if (f.type === "genre") ctl = `<input type="text" id="${id}" placeholder="${f.k === "genre2" ? "없으면 비워두세요" : "칩 선택 또는 직접 입력"}" value="${esc(genreLabel(state[f.k]))}"><div class="chips">${f.chips.map(c => `<button class="chip" type="button" data-genre="${c.v}" data-for="${f.k}" aria-pressed="${state[f.k] === c.v}">${esc(c.t)}</button>`).join("")}</div>`;
+        else if (f.type === "genre") ctl = `<input type="text" id="${id}" placeholder="${f.k === "genre2" ? "없으면 비워두세요" : "칩 선택 또는 직접 입력"}" value="${esc(genreLabel(state[f.k]))}"><div class="chips scroll">${f.chips.map(c => `<button class="chip" type="button" data-genre="${c.v}" data-for="${f.k}" aria-pressed="${state[f.k] === c.v}">${esc(c.t)}</button>`).join("")}</div>`;
         else if (f.type === "area") ctl = `<textarea id="${id}" placeholder="${esc(f.ph || "")}">${esc(state[f.k] || "")}</textarea>`;
         else if (f.type === "lyrics") ctl = `<textarea id="${id}" class="lyrics" placeholder="${esc(f.ph || "")}" spellcheck="false">${esc(state[f.k] || "")}</textarea>`;
         else if (f.type === "stems") ctl = `<div class="chips stems" id="stemBox">${D.stemTargets.map(t => `<button class="chip" type="button" data-stem="${esc(t.id)}" aria-pressed="${(state.splitTargets||[]).includes(t.id)}" title="${esc(D.stemQuality[t.quality])}">${esc(t.ko)}${t.quality === "weak" ? " ·" : ""}</button>`).join("")}</div><div class="help" id="stemCost"></div>`;
@@ -593,7 +593,7 @@
   /* ================= LLM ================= */
   const provSel = $("llmProvider");
   Object.entries(L.PROVIDERS).forEach(([id, p]) => provSel.appendChild(el("option", "", esc(p.name))).value = id);
-  async function loadKeyUI() { const keys = await S.getKeys(); const k = provSel.value === "gemini" ? { key: $("anKey").value.trim(), model: $("anModel").value.trim() } : keys[provSel.value]; $("llmKey").value = k ? k.key : ""; $("llmModel").value = k ? k.model : ""; $("llmModel").placeholder = "기본: " + L.PROVIDERS[provSel.value].defaultModel; }
+  async function loadKeyUI() { const keys = await S.getKeys(); const k = provSel.value === "gemini" ? { key: $("anKey").value.trim(), model: $("anModel").value.trim() } : keys[provSel.value]; $("llmKey").value = k ? k.key : ""; $("llmModel").value = k ? k.model : ""; $("llmModel").placeholder = "기본: " + L.PROVIDERS[provSel.value].defaultModel; $("llmKey").placeholder = provSel.value === "gemini" ? "AIza…" : "sk-…"; }
   provSel.onchange = loadKeyUI;
   $("llmSaveKey").onclick = async () => { await S.setKey(provSel.value, $("llmKey").value.trim(), $("llmModel").value.trim()); flash($("llmToast"), "이 기기에 저장됨"); };
   $("llmClearKey").onclick = async () => { await S.setKey(provSel.value, ""); $("llmKey").value = ""; flash($("llmToast"), "삭제됨"); };
