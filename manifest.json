@@ -1,0 +1,12 @@
+{
+  "name": "Suno Command · Track Sheet",
+  "short_name": "SunoCmd",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#D9DED8",
+  "theme_color": "#16191B",
+  "lang": "ko",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
