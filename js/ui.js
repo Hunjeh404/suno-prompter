@@ -16,13 +16,14 @@
   let project = { id: null, name: "" };
   let checkDone = {};
   let built = null;
+  let page = "an";                  // 폰 단계 탭에서 보고 있는 단계
 
   /* ================= 폼 스키마 ================= */
   const opt = list => list.map(x => ({ v: x.id, t: x.ko }));
   const genreChips = D.genres.map(g => ({ v: g.id, t: g.ko }));
 
   const SCHEMA = [
-    { no: "01", title: "Song", note: "무엇을 만들지", fields: [
+    { no: "01", title: "Song", pg: "song", note: "무엇을 만들지", fields: [
       { k: "title", label: "곡 제목", type: "text", ph: "비워도 됨" },
       { k: "theme", label: "곡 주제", type: "area", ph: "예) 새벽 두 시, 다 식은 커피 앞에서 옛 연인을 떠올리는 마음. 스타일 추천을 켜면 이 문장을 사운드 묘사로 번역합니다." },
       { k: "usage", label: "용도", type: "select", opts: opt(D.usage) },
@@ -31,7 +32,7 @@
       { k: "model", label: "모델", type: "select", opts: opt(D.models), helpFn: () => (D.models.find(m => m.id === state.model) || {}).note },
       { k: "explore", label: "탐색 모드", type: "select", opts: [{ v: "", t: "끄기 (발매용 — Variety 고정)" }, { v: "1", t: "켜기 (실험 — Variety 개방)" }], help: "켜면 Variety를 열고 Style Influence를 낮춰 변주를 유도합니다. 발매용은 끄는 것이 맞습니다." }
     ]},
-    { no: "02", title: "Sound", note: "장르와 템포", fields: [
+    { no: "02", title: "Sound", pg: "sound", note: "장르와 템포", fields: [
       { k: "genre1", label: "장르 1", type: "genre", chips: genreChips, help: "칩을 누르면 프리셋(BPM·레이어 순서)이 따라옵니다. 직접 입력도 됩니다." },
       { k: "genre2", label: "장르 2", type: "genre", chips: genreChips, help: "선택. 2개까지가 스위트스폿, 3개 이상은 충돌." },
       { k: "blend", label: "장르 비중", type: "select", opts: opt(D.genreBlend), help: "퍼센트가 아니라 순서와 수식어로 표현됩니다. 수노가 숫자를 읽는다는 근거가 없습니다." },
@@ -42,24 +43,24 @@
       { k: "mood", label: "분위기", type: "select", opts: opt(D.mood) },
       { k: "introCheat", label: "인트로", type: "select", opts: opt(D.introCheats), help: "AI 음악의 인트로는 빌드업이 아니라 임팩트 구간. 스템 모드에선 레이어 단계에서 다룹니다." }
     ]},
-    { no: "03", title: "Split", note: "분리할 스템", splitOnly: true, fields: [
+    { no: "03", title: "Split", pg: "stem", note: "분리할 스템", splitOnly: true, fields: [
       { k: "splitTargets", label: "Advanced Split", type: "stems", help: "곡에 실제로 존재하는 악기만 고를 것. 없는 악기를 지정하면 크레딧만 소모된다. 스템당 10크레딧." }
     ]},
-    { no: "04", title: "Vocal", note: "목소리 설계", fields: [
+    { no: "04", title: "Vocal", pg: "vocal", note: "목소리 설계", fields: [
       { k: "gender", label: "보컬 구성", type: "select", opts: opt(D.vocal.gender), help: "성별은 항상 명시. 비우면 랜덤." },
       { k: "age", label: "보컬 나이", type: "select", opts: opt(D.vocal.age) },
       { k: "tone", label: "보이스 톤", type: "select", opts: opt(D.vocal.tone) },
       { k: "range", label: "음역 / 창법", type: "text", ph: "예) alto, comfortable low-mid register", chips: D.vocal.rangeChips },
       { k: "mic", label: "마이크 거리감", type: "select", opts: opt(D.micDistance), help: "효과가 큽니다. 스템 모드는 밀착/드라이 권장 — Remove FX로 나중에 벗길 수도 있습니다." }
     ]},
-    { no: "05", title: "Stem Ops", note: "스템 작업", splitOnly: true, fields: [
+    { no: "05", title: "Stem Ops", pg: "stem", note: "스템 작업", splitOnly: true, fields: [
       { k: "layers", label: "작업 목록", type: "layers", help: "완곡에서 고칠 파트만 넣습니다. 재생성·교체·추가·제거를 각각 고를 수 있습니다." }
     ]},
-    { no: "06", title: "Lyrics", note: "직접 입력", fields: [
+    { no: "06", title: "Lyrics", pg: "lyrics", note: "직접 입력", fields: [
       { k: "structure", label: "곡 구성", type: "select", optsFn: () => (state.analyzedStructure ? [{ v: "analyzed", t: "분석된 구성: " + state.analyzedStructure.sections.map(s => s.tag).join(" - ") }] : []).concat(opt(D.structures)), help: "가사를 비우면 이 구성대로 음절 틀(ㅇ)을 만들어 줍니다." },
       { k: "lyrics", label: "가사", type: "lyrics", ph: "[Verse 1]\n창문 너머 번지는, 노을 빛.\n\n비우면 오른쪽 Lyrics 탭에 음절 틀이 나옵니다. 그 틀을 복사해 채워 넣으세요.\n대괄호 [ ]는 지시, 소괄호 ( )는 실제로 부를 소리만." }
     ]},
-    { no: "07", title: "Finish", note: "제외", fields: [
+    { no: "07", title: "Finish", pg: "lyrics", note: "제외", fields: [
       { k: "userExclude", label: "제외할 요소", type: "text", ph: "쉼표 구분. 예) rap, autotune, choir", help: "부정어 없이 대상만. 자동으로 5개까지 잘립니다 — 그 이상은 모델이 제외를 포기합니다." }
     ]}
   ];
@@ -71,6 +72,7 @@
     SCHEMA.forEach(blk => {
       const sec = el("section", "blk");
       sec.dataset.splitOnly = blk.splitOnly ? "1" : "";
+      sec.dataset.pg = blk.pg;
       sec.innerHTML = `<div class="blk-head"><span class="blk-no" aria-hidden="true"></span><h2 class="blk-title">${blk.title}</h2><span class="blk-note">${blk.note}</span></div>`;
       blk.fields.forEach(f => {
         const row = el("div", "row"); row.dataset.key = f.k;
@@ -135,12 +137,34 @@
       if (!s.hidden) { n++; const no = s.querySelector(".blk-no"); if (no) no.textContent = "SYS_" + String(n).padStart(2, "0"); }
     });
     syncNav();
+    applyPage();
     $("tabLayers").hidden = !split;
     if (!split && tab === "layers") tab = "base";
     $("subline").textContent = split
       ? "완곡을 뽑은 뒤 스템으로 파트를 고칩니다"
       : "설정을 Suno에 붙여넣을 프롬프트로 바꿉니다";
   }
+
+  /* 폰 단계 탭 — 고른 단계가 아닌 묶음에 pg-off를 붙인다 (CSS는 폭 700px 이하에서만 숨긴다) */
+  const phone = matchMedia("(max-width:700px)");
+  function applyPage() {
+    const split = state.mode === "split";
+    if (page === "stem" && !split) page = "sound";
+    document.querySelectorAll("[data-pg]").forEach(n => n.classList.toggle("pg-off", n.dataset.pg !== page));
+    document.querySelectorAll(".pt").forEach(b => {
+      if (b.dataset.page === "stem") b.hidden = !split;
+      if (b.dataset.page === page) b.setAttribute("aria-current", "true"); else b.removeAttribute("aria-current");
+    });
+  }
+  function setPage(p) {
+    page = p; applyPage();
+    if (!phone.matches) return;
+    const first = document.querySelector("[data-pg]:not(.pg-off):not([hidden])");
+    if (first) first.scrollIntoView({ block: "start" });
+    const cur = document.querySelector(".pt[aria-current]"); if (cur) cur.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }
+  $("ptabs").addEventListener("click", e => { const b = e.target.closest("[data-page]"); if (b) setPage(b.dataset.page); });
+  document.querySelector(".gear").addEventListener("click", () => setPage("set"));
 
   /* ================= 이벤트 ================= */
   form.addEventListener("input", e => {
@@ -500,7 +524,7 @@
   }
   if (vv) { vv.addEventListener("resize", placeDock); vv.addEventListener("scroll", placeDock); window.addEventListener("resize", placeDock); placeDock(); }
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  function goOut() { $("outCard").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" }); }
+  function goOut() { setPage("out"); $("outCard").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" }); }
   let inOut = false;
   function syncNav() {
     const split = state.mode === "split";

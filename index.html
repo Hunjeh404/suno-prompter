@@ -92,7 +92,7 @@
       </div>
     </section>
 
-    <section class="card" id="anPanel">
+    <section class="card" id="anPanel" data-pg="an">
       <h2 class="card-title"><svg class="y"><use href="#i-wave"/></svg>음원 분석 <span class="opt">(선택)</span></h2>
       <div class="llm-form">
         <div class="actions">
@@ -124,7 +124,7 @@
   </main>
 
   <aside class="col-out">
-    <section class="card out-card" id="outCard">
+    <section class="card out-card" id="outCard" data-pg="out">
       <div class="tabs" role="tablist" aria-label="결과 종류">
         <button type="button" class="tab" role="tab" id="tabBase" aria-controls="out" aria-selected="true" data-tab="base"><svg aria-hidden="true"><use href="#i-wave"/></svg>Base</button>
         <button type="button" class="tab" role="tab" id="tabLyrics" aria-controls="out" aria-selected="false" data-tab="lyrics"><svg aria-hidden="true"><use href="#i-pen"/></svg>Lyrics</button>
@@ -138,7 +138,7 @@
       </div>
     </section>
 
-    <section class="card" id="llmPanel">
+    <section class="card" id="llmPanel" data-pg="set">
       <h2 class="card-title"><svg class="y"><use href="#i-star"/></svg>스타일 추천 <span class="opt">(선택)</span></h2>
       <div class="llm-grid">
         <div class="llm-form">
@@ -169,7 +169,7 @@
       <div class="llm-note" id="llmNote" hidden></div>
     </section>
 
-    <section class="card" id="projPanel">
+    <section class="card" id="projPanel" data-pg="set">
       <h2 class="card-title"><svg class="y"><use href="#i-folder"/></svg>프로젝트</h2>
       <div class="proj-row">
         <div>
@@ -200,6 +200,16 @@
     <button type="button" class="btn go" id="dockStyle" data-dock="style" aria-label="Style 복사"><svg aria-hidden="true"><use href="#t-copy"/></svg><span>Style</span></button>
     <button type="button" class="btn go" id="dockLyrics" data-dock="lyrics" aria-label="가사 복사"><svg aria-hidden="true"><use href="#t-copy"/></svg><span>Lyrics</span></button>
   </div>
+  <nav class="ptabs" id="ptabs" aria-label="입력 단계">
+    <button type="button" class="pt" data-page="an">분석</button>
+    <button type="button" class="pt" data-page="song">곡</button>
+    <button type="button" class="pt" data-page="sound">사운드</button>
+    <button type="button" class="pt" data-page="stem">스템</button>
+    <button type="button" class="pt" data-page="vocal">보컬</button>
+    <button type="button" class="pt" data-page="lyrics">가사</button>
+    <button type="button" class="pt" data-page="out">결과</button>
+    <button type="button" class="pt" data-page="set">설정</button>
+  </nav>
   <nav class="bnav" aria-label="빠른 이동">
     <button type="button" class="bn" id="navOneshot" data-nav="oneshot"><svg aria-hidden="true"><use href="#t-disc"/></svg><span>원샷</span></button>
     <button type="button" class="bn" id="navSplit" data-nav="split"><svg aria-hidden="true"><use href="#t-split"/></svg><span>분리</span></button>

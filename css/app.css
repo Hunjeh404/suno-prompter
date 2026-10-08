@@ -494,6 +494,21 @@ select option{background:#151515;color:var(--fg)}
 .bn:active{transform:scale(.97)}
 .bn[aria-current=true]{color:var(--signal);background:var(--signal-wash);border-color:var(--signal-edge)}
 
+/* ---------- 폰: 단계 탭 (한 번에 한 단계만 보인다) ---------- */
+.ptabs{display:none}
+.pt{flex:1 0 auto;background:transparent;border:1px solid transparent;border-radius:10px;color:var(--fg-3);
+    font-size:13px;font-weight:500;min-height:46px;padding:0 9px;white-space:nowrap;
+    -webkit-tap-highlight-color:transparent;transition:color .15s,background-color .15s,border-color .15s}
+.pt[aria-current=true]{color:var(--signal);background:var(--signal-wash);border-color:var(--signal-edge)}
+.pt[hidden]{display:none}
+@media(max-width:700px){
+  .ptabs{display:flex;gap:2px;padding:5px var(--s2);overflow-x:auto;scrollbar-width:none}
+  .ptabs::-webkit-scrollbar{display:none}
+  .bnav{display:none}
+  .dock.kb .ptabs{display:none}
+  .pg-off{display:none!important}
+}
+
 /* ---------- 푸터 ---------- */
 .foot{margin-top:var(--s6);padding-top:var(--s4);border-top:1px solid var(--line-soft);text-align:center}
 .foot-brand{display:inline-flex;align-items:center;gap:7px;color:var(--fg-3);font-size:13px;margin-bottom:7px}
