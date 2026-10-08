@@ -137,9 +137,9 @@
     if (!file) throw new Error("음원 파일이 없음");
     if (file.size > GEMINI.maxBytes) throw new Error("파일이 14MB를 넘음. mp3로 변환해 올리세요.");
     const b64 = await new Promise((ok, no) => { const fr = new FileReader(); fr.onload = () => ok(String(fr.result).split(",")[1]); fr.onerror = () => no(new Error("파일을 읽지 못함")); fr.readAsDataURL(file); });
-    const r = await fetch(GEMINI.url(model || GEMINI.defaultModel), {
+    const r = await fetch(GEMINI.url(model || GEMINI.defaultModel) + "?key=" + encodeURIComponent(key), {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-goog-api-key": key },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         contents: [{ parts: [{ inline_data: { mime_type: file.type || "audio/mpeg", data: b64 } }, { text: analyzePrompt(data, ins) }] }],
         generationConfig: { temperature: 0.2, responseMimeType: "application/json" }
