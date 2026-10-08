@@ -569,11 +569,12 @@
   /* ================= LLM ================= */
   const provSel = $("llmProvider");
   Object.entries(L.PROVIDERS).forEach(([id, p]) => provSel.appendChild(el("option", "", esc(p.name))).value = id);
-  async function loadKeyUI() { const keys = await S.getKeys(); const k = keys[provSel.value]; $("llmKey").value = k ? k.key : ""; $("llmModel").value = k ? k.model : ""; $("llmModel").placeholder = "기본: " + L.PROVIDERS[provSel.value].defaultModel; }
+  async function loadKeyUI() { const keys = await S.getKeys(); const k = provSel.value === "gemini" ? { key: $("anKey").value.trim(), model: $("anModel").value.trim() } : keys[provSel.value]; $("llmKey").value = k ? k.key : ""; $("llmModel").value = k ? k.model : ""; $("llmModel").placeholder = "기본: " + L.PROVIDERS[provSel.value].defaultModel; }
   provSel.onchange = loadKeyUI;
   $("llmSaveKey").onclick = async () => { await S.setKey(provSel.value, $("llmKey").value.trim(), $("llmModel").value.trim()); flash($("llmToast"), "이 기기에 저장됨"); };
   $("llmClearKey").onclick = async () => { await S.setKey(provSel.value, ""); $("llmKey").value = ""; flash($("llmToast"), "삭제됨"); };
   $("llmRun").onclick = async () => {
+    if (provSel.value === "gemini" && !$("llmKey").value.trim()) await loadKeyUI();   // 음원 분석 칸에 넣어둔 키를 그대로 쓴다
     const key = $("llmKey").value.trim(); if (!key) { flash($("llmToast"), "키가 없음"); return; }
     const btn = $("llmRun"); btn.disabled = true; btn.textContent = "생각 중…";
     try {
@@ -617,8 +618,8 @@
     const cur = await S.currentId(); const p = cur ? await S.load(cur) : null;
     if (p) await loadProject(p);
     else { renderForm(); renderProjects(); refresh(); }
-    await loadKeyUI();
     const gk = (await S.getKeys()).gemini; if (gk) { $("anKey").value = gk.key; $("anModel").value = gk.model; }
+    await loadKeyUI();
     if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(() => {});
   })();
 })();

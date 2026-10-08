@@ -2,13 +2,14 @@
    SUNO PROMPT GENERATOR — LLM LAYER (2층, 선택 기능)
    ---------------------------------------------------------------------
    사용자 키로 브라우저에서 직접 호출. 서버 없음. 키는 기기 밖으로 나가지 않는다.
-   어댑터 A: OpenAI 규격 (OpenAI, Grok)  /  어댑터 B: Anthropic
-   Gemini 제외 (OpenAI 호환 엔드포인트 CORS 문제). 필요 시 OpenRouter를 A 규격으로 추가.
+   어댑터 A: OpenAI 규격 (OpenAI, Grok)  /  어댑터 B: Anthropic  /  어댑터 G: Gemini 네이티브
+   Gemini는 OpenAI 호환 엔드포인트가 CORS에 막혀 네이티브 엔드포인트로 호출. 필요 시 OpenRouter를 A 규격으로 추가.
    ===================================================================== */
 (function (root) {
   "use strict";
 
   const PROVIDERS = {
+    gemini: { name: "Gemini", adapter: "G", defaultModel: "gemini-3.8-flash" },
     openai: { name: "OpenAI",  adapter: "A", url: "https://api.openai.com/v1/chat/completions", defaultModel: "gpt-4o-mini" },
     grok:   { name: "Grok (xAI)", adapter: "A", url: "https://api.x.ai/v1/chat/completions", defaultModel: "grok-3-mini" },
     claude: { name: "Claude", adapter: "B", url: "https://api.anthropic.com/v1/messages", defaultModel: "claude-sonnet-4-6" }
@@ -71,6 +72,17 @@
     return (j.content || []).filter(c => c.type === "text").map(c => c.text).join("\n");
   }
 
+  async function callG(p, key, model, sys, usr) {
+    const r = await fetch(GEMINI.url(model) + "?key=" + encodeURIComponent(key), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ systemInstruction: { parts: [{ text: sys }] }, contents: [{ parts: [{ text: usr }] }], generationConfig: { temperature: 0.4, responseMimeType: "application/json" } })
+    });
+    if (!r.ok) throw new Error(`${p.name} ${r.status}: ${(await r.text()).slice(0, 200)}`);
+    const j = await r.json();
+    return (j.candidates?.[0]?.content?.parts || []).map(x => x.text || "").join("");
+  }
+
   const airy = s => String(s).replace(/breathy/gi, "airy");   // breathy 금지 — LLM이 돌려준 문구에도 적용
   const airyObj = o => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, airy(v)]));
 
@@ -86,7 +98,7 @@
     if (!key) throw new Error("API 키가 없음");
     const m = model || p.defaultModel;
     const sys = systemPrompt(data), usr = userPrompt(state, built, data);
-    const raw = p.adapter === "A" ? await callA(p, key, m, sys, usr) : await callB(p, key, m, sys, usr);
+    const raw = await (p.adapter === "A" ? callA : p.adapter === "G" ? callG : callB)(p, key, m, sys, usr);
     const out = parseJSON(raw);
     return {
       styleAdditions: Array.isArray(out.styleAdditions) ? out.styleAdditions.slice(0, 3).map(airy) : [],
