@@ -346,7 +346,7 @@
   }
 
   function syllableTemplate(state, data) {
-    const st = find(data.structures, state.structure) || data.structures[0];
+    const st = (state.structure === "analyzed" && state.analyzedStructure) || find(data.structures, state.structure) || data.structures[0];
     const ideal = data.koreanRules.syllablesPerLine.ideal;
     const out = [];
     let verses = 0;

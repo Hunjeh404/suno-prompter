@@ -92,6 +92,34 @@
       </div>
     </section>
 
+    <section class="card" id="anPanel">
+      <h2 class="card-title"><svg class="y"><use href="#i-wave"/></svg>음원 분석 <span class="opt">(선택)</span></h2>
+      <div class="llm-form">
+        <div class="actions">
+          <button type="button" class="btn" id="anPick"><svg aria-hidden="true"><use href="#i-up"/></svg>음원 선택</button>
+          <span class="muted" id="anName">선택한 파일 없음</span>
+          <input type="file" id="anFile" accept="audio/*" hidden>
+        </div>
+        <div class="two">
+          <div>
+            <label class="keylabel" for="anKey"><svg aria-hidden="true"><use href="#i-lock"/></svg>Gemini API 키</label>
+            <input type="password" id="anKey" placeholder="AIza…" autocomplete="off" spellcheck="false">
+          </div>
+          <div>
+            <label class="flabel" for="anModel">모델명</label>
+            <input type="text" id="anModel" autocomplete="off" spellcheck="false">
+          </div>
+        </div>
+        <div class="actions">
+          <button type="button" class="btn accent" id="anRun"><svg aria-hidden="true"><use href="#i-down"/></svg>분석해서 채우기</button>
+          <button type="button" class="btn" id="anSaveKey"><svg aria-hidden="true"><use href="#i-key"/></svg>키 저장</button>
+          <span class="toast" id="anToast" role="status" aria-live="polite"></span>
+        </div>
+        <div class="help">곡을 듣고 장르·BPM·악기·음역·보컬·분위기·곡 구성을 채웁니다. 현재 입력을 덮어쓰며, 제목·주제·가사는 건드리지 않습니다. mp3 14MB 이하.</div>
+      </div>
+      <div class="llm-note" id="anNote" hidden></div>
+    </section>
+
     <div id="form"></div>
   </main>
 

@@ -56,7 +56,7 @@
       { k: "layers", label: "작업 목록", type: "layers", help: "완곡에서 고칠 파트만 넣습니다. 재생성·교체·추가·제거를 각각 고를 수 있습니다." }
     ]},
     { no: "06", title: "Lyrics", note: "직접 입력", fields: [
-      { k: "structure", label: "곡 구성", type: "select", opts: opt(D.structures), help: "가사를 비우면 이 구성대로 음절 틀(ㅇ)을 만들어 줍니다." },
+      { k: "structure", label: "곡 구성", type: "select", optsFn: () => (state.analyzedStructure ? [{ v: "analyzed", t: "분석된 구성: " + state.analyzedStructure.sections.map(s => s.tag).join(" - ") }] : []).concat(opt(D.structures)), help: "가사를 비우면 이 구성대로 음절 틀(ㅇ)을 만들어 줍니다." },
       { k: "lyrics", label: "가사", type: "lyrics", ph: "[Verse 1]\n창문 너머 번지는, 노을 빛.\n\n비우면 오른쪽 Lyrics 탭에 음절 틀이 나옵니다. 그 틀을 복사해 채워 넣으세요.\n대괄호 [ ]는 지시, 소괄호 ( )는 실제로 부를 소리만." }
     ]},
     { no: "07", title: "Finish", note: "제외", fields: [
@@ -76,7 +76,7 @@
         const row = el("div", "row"); row.dataset.key = f.k;
         const id = "f_" + f.k;
         let ctl = "";
-        if (f.type === "select") ctl = `<select id="${id}">${f.opts.map(o => `<option value="${esc(o.v)}"${o.v === state[f.k] ? " selected" : ""}>${esc(o.t)}</option>`).join("")}</select>`;
+        if (f.type === "select") ctl = `<select id="${id}">${(f.optsFn ? f.optsFn() : f.opts).map(o => `<option value="${esc(o.v)}"${o.v === state[f.k] ? " selected" : ""}>${esc(o.t)}</option>`).join("")}</select>`;
         else if (f.type === "text") ctl = `<input type="text" id="${id}" placeholder="${esc(f.ph || "")}" value="${esc(state[f.k] || "")}">` + (f.chips ? `<div class="chips">${f.chips.map(c => `<button class="chip" type="button" data-chip="${esc(c)}" data-for="${id}">${esc(c)}</button>`).join("")}</div>` : "");
         else if (f.type === "genre") ctl = `<input type="text" id="${id}" placeholder="${f.k === "genre2" ? "없으면 비워두세요" : "칩 선택 또는 직접 입력"}" value="${esc(genreLabel(state[f.k]))}"><div class="chips">${f.chips.map(c => `<button class="chip" type="button" data-genre="${c.v}" data-for="${f.k}" aria-pressed="${state[f.k] === c.v}">${esc(c.t)}</button>`).join("")}</div>`;
         else if (f.type === "area") ctl = `<textarea id="${id}" placeholder="${esc(f.ph || "")}">${esc(state[f.k] || "")}</textarea>`;
@@ -590,6 +590,27 @@
     finally { btn.disabled = false; btn.textContent = "추천 받기"; }
   };
 
+  /* ================= 음원 분석 ================= */
+  let anFile = null;
+  $("anModel").placeholder = "기본: " + L.GEMINI.defaultModel;
+  $("anPick").onclick = () => $("anFile").click();
+  $("anFile").onchange = e => { anFile = e.target.files[0] || null; $("anName").textContent = anFile ? anFile.name : "선택한 파일 없음"; };
+  $("anSaveKey").onclick = async () => { await S.setKey("gemini", $("anKey").value.trim(), $("anModel").value.trim()); flash($("anToast"), "이 기기에 저장됨"); };
+  $("anRun").onclick = async () => {
+    const btn = $("anRun"), note = $("anNote"); btn.disabled = true; btn.textContent = "듣는 중…"; note.hidden = true;
+    try {
+      const a = await L.analyze({ key: $("anKey").value.trim(), model: $("anModel").value.trim(), file: anFile, data: D, ins: INS });
+      Object.assign(state, a.fields);
+      if (a.lang) state.lang = a.lang;
+      state.mainInst = a.mainInst; state.extraStyle = a.extraStyle;
+      if (a.sections.length) { state.analyzedStructure = { id: "analyzed", sections: a.sections }; state.structure = "analyzed"; }
+      renderForm(); syncGenreChips(); refresh();
+      note.hidden = false;
+      note.innerHTML = `<div>분석 결과로 입력을 채웠습니다. 아래에서 직접 고치세요.</div><div class="help">악기 ${a.mainInst.length}개 · 구성 ${a.sections.length}구간 · 추가 디스크립터: ${a.extraStyle.length ? esc(a.extraStyle.join(", ")) : "없음"}</div>`;
+    } catch (err) { note.hidden = false; note.textContent = "분석 실패: " + err.message; }
+    finally { btn.disabled = false; btn.textContent = "분석해서 채우기"; }
+  };
+
   /* ================= 시작 ================= */
   (async function init() {
     $("dataver").textContent = `데이터 ${D.version}, ${D.targetModel} 기준`;
@@ -597,6 +618,7 @@
     if (p) await loadProject(p);
     else { renderForm(); renderProjects(); refresh(); }
     await loadKeyUI();
+    const gk = (await S.getKeys()).gemini; if (gk) { $("anKey").value = gk.key; $("anModel").value = gk.model; }
     if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(() => {});
   })();
 })();
