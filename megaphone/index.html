@@ -4,53 +4,141 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>폰 확성기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@700&display=swap" rel="stylesheet">
 <style>
-  body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px; font-family: -apple-system, sans-serif; background: #111; color: #eee; }
-  button { width: 200px; height: 200px; border-radius: 50%; border: none; font-size: 28px; font-weight: 700; background: #2a7; color: #fff; }
-  button.on { background: #d33; }
-  label { font-size: 18px; }
-  input { width: 260px; }
-  #msg { font-size: 15px; color: #aaa; padding: 0 20px; text-align: center; }
+  :root { --wood: #5a3620; --wood2: #3d2414; --cream: #efe3c8; --ink: #2b1d12; --brass: #c9a24a; --red: #c0392b; }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px;
+         background: radial-gradient(circle at 50% 30%, #2a1a10, #120a05); font-family: 'Gowun Batang', serif; color: var(--ink); }
+  .amp { width: 100%; max-width: 380px; padding: 14px; border-radius: 18px;
+         background: repeating-linear-gradient(95deg, var(--wood) 0 7px, var(--wood2) 7px 9px, var(--wood) 9px 15px);
+         box-shadow: 0 20px 40px rgba(0,0,0,.6), inset 0 0 0 2px #7a4a2a; }
+  .face { background: var(--cream); border-radius: 10px; padding: 18px 18px 22px;
+          box-shadow: inset 0 0 18px rgba(90,54,32,.35); }
+  .brand { text-align: center; letter-spacing: 6px; font-size: 13px; color: var(--wood); margin-bottom: 10px; }
+  .meter { background: #f6ecd2; border: 3px solid var(--brass); border-radius: 8px; padding: 6px 6px 0;
+           box-shadow: inset 0 2px 8px rgba(0,0,0,.25); }
+  .meter svg { display: block; width: 100%; height: auto; }
+  .power { display: block; margin: 22px auto 6px; width: 120px; height: 120px; border-radius: 50%; border: 4px solid var(--brass);
+           background: radial-gradient(circle at 35% 30%, #6b4a33, #2b1a0f); color: var(--cream); cursor: pointer;
+           box-shadow: 0 6px 14px rgba(0,0,0,.45), inset 0 -4px 10px rgba(0,0,0,.5); transition: box-shadow .2s; }
+  .power svg { width: 46px; height: 46px; }
+  .power.on { color: #ffd98a; box-shadow: 0 0 22px rgba(255,170,60,.7), inset 0 -4px 10px rgba(0,0,0,.5); }
+  .lamp { width: 12px; height: 12px; border-radius: 50%; margin: 8px auto 18px; background: #5a1a14; border: 2px solid var(--brass); }
+  .lamp.on { background: #ff4a2a; box-shadow: 0 0 10px #ff4a2a; }
+  .row { margin-top: 16px; }
+  .row .top { display: flex; justify-content: space-between; font-size: 15px; margin-bottom: 6px; }
+  .row .val { color: var(--wood); }
+  input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 10px; border-radius: 5px;
+                      background: linear-gradient(#3a2416, #5a3620); box-shadow: inset 0 1px 3px rgba(0,0,0,.6); }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 30px; height: 30px; border-radius: 50%;
+                      background: radial-gradient(circle at 35% 30%, #f3d98c, #a07a2a); border: 2px solid #6b4f1a; box-shadow: 0 2px 5px rgba(0,0,0,.5); }
+  input[type=range]::-moz-range-thumb { width: 30px; height: 30px; border-radius: 50%; background: #c9a24a; border: 2px solid #6b4f1a; }
+  #msg { text-align: center; font-size: 13px; color: var(--wood); margin-top: 18px; min-height: 18px; }
 </style>
 </head>
 <body>
-<button id="btn">시작</button>
-<label>볼륨 <input id="vol" type="range" min="0" max="3" step="0.1" value="1"></label>
-<div id="msg">블루투스 스피커를 연결한 뒤 시작을 누르세요</div>
+<div class="amp"><div class="face">
+  <div class="brand">PHONE AMPLIFIER</div>
+  <div class="meter">
+    <svg viewBox="0 0 300 150">
+      <g id="scale" stroke="#2b1d12" fill="#2b1d12" font-size="11" font-family="serif" text-anchor="middle"></g>
+      <line id="thr" x1="150" y1="140" x2="150" y2="30" stroke="#c0392b" stroke-width="3" opacity="0"/>
+      <line id="needle" x1="150" y1="140" x2="150" y2="28" stroke="#1a110a" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="150" cy="140" r="8" fill="#2b1d12"/>
+    </svg>
+  </div>
+  <button id="btn" class="power" aria-label="시작">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9 5a3 3 0 0 1 3 -3a3 3 0 0 1 3 3v5a3 3 0 0 1 -3 3a3 3 0 0 1 -3 -3l0 -5"/><path d="M5 10a7 7 0 0 0 14 0"/><path d="M8 21l8 0"/><path d="M12 17l0 4"/>
+    </svg>
+  </button>
+  <div id="lamp" class="lamp"></div>
+  <div class="row"><div class="top"><span>볼륨</span><span id="volV" class="val">1.0</span></div>
+    <input id="vol" type="range" min="0" max="3" step="0.1" value="1"></div>
+  <div class="row"><div class="top"><span>노이즈 제거</span><span id="nrV" class="val">끔</span></div>
+    <input id="nr" type="range" min="0" max="10" step="1" value="0"></div>
+  <div id="msg">블루투스 스피커를 연결한 뒤 버튼을 누르세요</div>
+</div></div>
 <script>
-const btn = document.getElementById('btn');
-const vol = document.getElementById('vol');
-const msg = document.getElementById('msg');
-let ctx, stream, gain;
+const $ = id => document.getElementById(id);
+const btn = $('btn'), vol = $('vol'), nr = $('nr'), msg = $('msg');
+const MIN_DB = -60, ANG = 50;
+let ctx, stream, gain, gate, analyser, buf, raf, lastLoud = 0, shown = MIN_DB;
+
+// 눈금 그리기: -60dB ~ 0dB 를 -50도 ~ +50도에
+const ang = db => (Math.max(MIN_DB, Math.min(0, db)) - MIN_DB) / -MIN_DB * 2 * ANG - ANG;
+const scale = $('scale');
+for (let db = MIN_DB; db <= 0; db += 10) {
+  const a = ang(db) * Math.PI / 180, s = Math.sin(a), c = Math.cos(a);
+  scale.innerHTML += `<line x1="${150 + s * 100}" y1="${140 - c * 100}" x2="${150 + s * 112}" y2="${140 - c * 112}" stroke-width="2"/>` +
+                     `<text x="${150 + s * 124}" y="${144 - c * 124}" stroke="none">${db}</text>`;
+}
+const point = (el, db) => el.setAttribute('transform', `rotate(${ang(db)} 150 140)`);
+
+// 강도 1~10 → 끊는 기준 -54dB ~ -27dB
+const thrDb = () => -57 + nr.value * 3;
+
+function showNr() {
+  const n = +nr.value;
+  $('nrV').textContent = n ? n : '끔';
+  $('thr').setAttribute('opacity', n ? 1 : 0);
+  point($('thr'), thrDb());
+}
+showNr();
+
+function tick() {
+  analyser.getFloatTimeDomainData(buf);
+  let sum = 0;
+  for (const v of buf) sum += v * v;
+  const db = 20 * Math.log10(Math.sqrt(sum / buf.length) + 1e-9);
+  const now = ctx.currentTime;
+  if (+nr.value === 0 || db > thrDb()) lastLoud = now;
+  // 기준을 넘으면 바로 열고, 0.25초 조용하면 닫음
+  gate.gain.setTargetAtTime(now - lastLoud < 0.25 ? 1 : 0, now, now - lastLoud < 0.25 ? 0.005 : 0.05);
+  shown += (Math.max(db, MIN_DB) - shown) * 0.3;
+  point($('needle'), shown);
+  raf = requestAnimationFrame(tick);
+}
 
 btn.onclick = async () => {
   if (stream) {
+    cancelAnimationFrame(raf);
     stream.getTracks().forEach(t => t.stop());
     ctx.close();
     stream = null;
-    btn.textContent = '시작';
-    btn.className = '';
+    btn.classList.remove('on'); $('lamp').classList.remove('on');
+    point($('needle'), MIN_DB); shown = MIN_DB;
     msg.textContent = '정지됨';
     return;
   }
   try {
     stream = await navigator.mediaDevices.getUserMedia({
-      audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
+      audio: { echoCancellation: false, noiseSuppression: +nr.value > 0, autoGainControl: false }
     });
     ctx = new AudioContext({ latencyHint: 'interactive' });
-    gain = ctx.createGain();
-    gain.gain.value = vol.value;
-    ctx.createMediaStreamSource(stream).connect(gain).connect(ctx.destination);
-    btn.textContent = '정지';
-    btn.className = 'on';
+    const src = ctx.createMediaStreamSource(stream);
+    analyser = ctx.createAnalyser(); analyser.fftSize = 1024;
+    buf = new Float32Array(analyser.fftSize);
+    gate = ctx.createGain();
+    gain = ctx.createGain(); gain.gain.value = vol.value;
+    src.connect(analyser);
+    src.connect(gate).connect(gain).connect(ctx.destination);
+    btn.classList.add('on'); $('lamp').classList.add('on');
     msg.textContent = '말하면 스피커로 나옵니다';
+    tick();
   } catch (e) {
     stream = null;
     msg.textContent = '마이크를 켤 수 없습니다: ' + e.message;
   }
 };
 
-vol.oninput = () => { if (gain) gain.gain.value = vol.value; };
+vol.oninput = () => { $('volV').textContent = (+vol.value).toFixed(1); if (gain) gain.gain.value = vol.value; };
+nr.oninput = () => {
+  showNr();
+  if (stream) stream.getAudioTracks()[0].applyConstraints({ noiseSuppression: +nr.value > 0 }).catch(() => {});
+};
 </script>
 </body>
 </html>
