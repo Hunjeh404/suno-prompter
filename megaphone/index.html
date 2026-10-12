@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>폰 확성기</title>
+<style>
+  body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px; font-family: -apple-system, sans-serif; background: #111; color: #eee; }
+  button { width: 200px; height: 200px; border-radius: 50%; border: none; font-size: 28px; font-weight: 700; background: #2a7; color: #fff; }
+  button.on { background: #d33; }
+  label { font-size: 18px; }
+  input { width: 260px; }
+  #msg { font-size: 15px; color: #aaa; padding: 0 20px; text-align: center; }
+</style>
+</head>
+<body>
+<button id="btn">시작</button>
+<label>볼륨 <input id="vol" type="range" min="0" max="3" step="0.1" value="1"></label>
+<div id="msg">블루투스 스피커를 연결한 뒤 시작을 누르세요</div>
+<script>
+const btn = document.getElementById('btn');
+const vol = document.getElementById('vol');
+const msg = document.getElementById('msg');
+let ctx, stream, gain;
+
+btn.onclick = async () => {
+  if (stream) {
+    stream.getTracks().forEach(t => t.stop());
+    ctx.close();
+    stream = null;
+    btn.textContent = '시작';
+    btn.className = '';
+    msg.textContent = '정지됨';
+    return;
+  }
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
+    });
+    ctx = new AudioContext({ latencyHint: 'interactive' });
+    gain = ctx.createGain();
+    gain.gain.value = vol.value;
+    ctx.createMediaStreamSource(stream).connect(gain).connect(ctx.destination);
+    btn.textContent = '정지';
+    btn.className = 'on';
+    msg.textContent = '말하면 스피커로 나옵니다';
+  } catch (e) {
+    stream = null;
+    msg.textContent = '마이크를 켤 수 없습니다: ' + e.message;
+  }
+};
+
+vol.oninput = () => { if (gain) gain.gain.value = vol.value; };
+</script>
+</body>
+</html>
